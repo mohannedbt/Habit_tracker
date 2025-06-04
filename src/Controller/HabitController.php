@@ -8,10 +8,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
+#[Route('/habit')]
 final class HabitController extends AbstractController
 {
-    #[Route('/', name: 'home')]
+    #[Route('', name: 'dashboard')]
     public function home(EntityManagerInterface $em): Response
     {
         $habits = $em->getRepository(Habit::class)->findAll();
@@ -34,21 +34,23 @@ final class HabitController extends AbstractController
                         'color' => $habit->getColor() ?: '#000000', // fallback black
                     ];
 
-                    // Generate a random hex color for UI
-                    $color = sprintf('#%06X', random_int(0, 0xFFFFFF));
-
+                    // Use stored color for list (no random)
                     $habitList[] = [
                         'id' => $habit->getId(),
                         'name' => $habit->getName(),
-                        'color' => $color,
+                        'color' => $habit->getColor() ?: '#000000',
                     ];
                 }
             }
         }
 
+        // Get logged-in user, can be null if not logged in
+        $user = $this->getUser();
+
         return $this->render('habit/index.html.twig', [
             'events' => $events,
             'habitList' => $habitList,
+            'user' => $user,
         ]);
     }
 

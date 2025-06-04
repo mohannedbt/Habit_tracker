@@ -35,6 +35,9 @@ class Habit
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTime $start_date = null;
 
+    #[ORM\ManyToOne(inversedBy: 'habits')]
+    private ?User $user = null;
+
     public function __construct()
     {
         $this->dailyReports = new ArrayCollection();
@@ -133,6 +136,18 @@ class Habit
     public function setColor(?string $color): self
     {
         $this->color = $color;
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
         return $this;
     }
 }
