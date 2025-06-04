@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Add New Habit</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ form_start(form) }}
+
+                        {# Render all form fields except submit button (which we removed from the form) #}
+                        {% for field in form %}
+                            <div class="mb-3">
+                                {{ form_label(field, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(field) }}
+                            </div>
+                        {% endfor %}
+
+                        {# Manual submit button #}
+                        <button type="submit" class="btn btn-primary w-100">Save Habit</button>
+
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

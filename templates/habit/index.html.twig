@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="mb-4">My Habit Calendar</h1>
+
+        <div id="calendar" style="height: 650px; background: #fef9e7; border: 1px solid #e1d89f;"></div>
+
+        <h2 class="mt-5">Your Habits</h2>
+        <ul class="list-group">
+            {% for habit in habitList %}
+                <li class="list-group-item d-flex justify-content-between align-items-center" style="background-color: {{ habit.color }};">
+                    <strong>{{ habit.name }}</strong>
+                    <span>
+                    <a href="{{ path('app_edit_habit', {'id': habit.id}) }}" class="btn btn-sm btn-warning me-2">Modify</a>
+                    <a href="{{ path('app_delete_habit', {'id': habit.id}) }}" class="btn btn-sm btn-danger"
+                       onclick="return confirm('Are you sure you want to delete this habit?');">Delete</a>
+                </span>
+                </li>
+            {% else %}
+                <li class="list-group-item">No habits found.</li>
+            {% endfor %}
+        </ul>
+
+        <div class="text-center mt-4">
+            <a href="{{ path('app_add_habit') }}" class="btn btn-primary btn-lg">Add New Habit</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                height: 650,
+                events: {{ events|json_encode|raw }},
+                eventDisplay: 'block'
+            });
+            calendar.render();
+        });
+    </script>
+
+{% block javascripts %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js' defer></script>
+{% endblock %}
+{% endblock %}
