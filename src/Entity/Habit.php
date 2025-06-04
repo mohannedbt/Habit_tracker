@@ -26,17 +26,17 @@ class Habit
     #[ORM\Column]
     private ?int $period = null;
 
-    /**
-     * @var Collection<int, DailyReport>
-     */
-    #[ORM\ManyToMany(targetEntity: DailyReport::class, mappedBy: 'habit')]
-    private Collection $dailyReports;
-
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTime $start_date = null;
 
     #[ORM\ManyToOne(inversedBy: 'habits')]
     private ?User $user = null;
+
+    /**
+     * @var Collection<int, DailyReport>
+     */
+    #[ORM\OneToMany(targetEntity: DailyReport::class, mappedBy: 'Habit')]
+    private Collection $dailyReports;
 
     public function __construct()
     {
@@ -87,34 +87,7 @@ class Habit
         return $this;
     }
 
-    /**
-     * @return Collection<int, DailyReport>
-     */
-    public function getDailyReports(): Collection
-    {
-        return $this->dailyReports;
-    }
-
-    public function addDailyReport(DailyReport $dailyReport): static
-    {
-        if (!$this->dailyReports->contains($dailyReport)) {
-            $this->dailyReports->add($dailyReport);
-            $dailyReport->addHabit($this);
-        }
-
-        return $this;
-    }
-
-    public function removeDailyReport(DailyReport $dailyReport): static
-    {
-        if ($this->dailyReports->removeElement($dailyReport)) {
-            $dailyReport->removeHabit($this);
-        }
-
-        return $this;
-    }
-
-    public function getStartDate(): ?\DateTime
+    function getStartDate(): ?\DateTime
     {
         return $this->start_date;
     }
@@ -147,6 +120,36 @@ class Habit
     public function setUser(?User $user): static
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DailyReport>
+     */
+    public function getDailyReports(): Collection
+    {
+        return $this->dailyReports;
+    }
+
+    public function addDailyReport(DailyReport $dailyReport): static
+    {
+        if (!$this->dailyReports->contains($dailyReport)) {
+            $this->dailyReports->add($dailyReport);
+            $dailyReport->setHabit($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDailyReport(DailyReport $dailyReport): static
+    {
+        if ($this->dailyReports->removeElement($dailyReport)) {
+            // set the owning side to null (unless already changed)
+            if ($dailyReport->getHabit() === $this) {
+                $dailyReport->setHabit(null);
+            }
+        }
 
         return $this;
     }

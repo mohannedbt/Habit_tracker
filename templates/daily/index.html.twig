@@ -1,0 +1,182 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Goal Tracking ✅{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+    <style>
+
+
+        .container {
+            padding: 40px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        #calendar {
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        .habit-cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .habit-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            width: 300px;
+            transition: transform 0.2s;
+        }
+
+        .habit-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .habit-card h3 {
+            margin-top: 0;
+            color: #34495e;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: 500;
+        }
+
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        button[type="submit"] {
+            display: block;
+            margin: 30px auto;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #1e8449;
+        }
+
+        /* Calendar event styling */
+        .fc-event {
+            font-weight: bold;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 12px;
+            color: white;
+            padding: 4px;
+        }
+
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Goal Tracking ✅</h1>
+
+        <div id="calendar"></div>
+
+        <h2>Today's Reports 🗓️</h2>
+
+        <form method="post">
+            <div class="habit-cards-container">
+                {% for habit in habits %}
+                    {% set report = reportsByHabit[habit.id]|default(null) %}
+                    <div class="habit-card">
+                        <h3>{{ habit.name }}</h3>
+                        <p><strong>Date:</strong> {{ today|date('Y-m-d') }}</p>
+
+                        <label for="status_{{ habit.id }}">Status:</label>
+                        <select id="status_{{ habit.id }}" name="status[{{ habit.id }}]">
+                            <option value="none" {% if report is null or report.status == 'none' %}selected{% endif %}>None</option>
+                            <option value="yes" {% if report is not null and report.status == 'yes' %}selected{% endif %}>✔️ Yes</option>
+                            <option value="no" {% if report is not null and report.status == 'no' %}selected{% endif %}>❌ No</option>
+                        </select>
+
+                        <label for="comment_{{ habit.id }}">Comment:</label>
+                        <input id="comment_{{ habit.id }}" type="text" name="comment[{{ habit.id }}]" value="{{ report.comment|default('') }}" />
+
+                        <label for="rating_{{ habit.id }}">Rating (1–5):</label>
+                        <input id="rating_{{ habit.id }}" type="number" name="rating[{{ habit.id }}]" min="1" max="5" value="{{ report.rating|default('') }}" />
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit">Submit Today's Reports</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const calendarEl = document.getElementById('calendar');
+
+            const reports = [
+                {% for report in reportsByHabit %}
+                {
+                    date: '{{ report.date|date("Y-m-d") }}',
+                    habitId: {{ report.habit.id }},
+                    habitName: '{{ report.habit.name|e('js') }}',
+                    status: '{{ report.status }}',
+                    color: '{{ report.habit.color|default('#1abc9c') }}',
+                    text: ( '{{ report.status }}' === 'yes' ? '✔️' : ( '{{ report.status }}' === 'no' ? '❌' : '' ) )
+                },
+                {% endfor %}
+            ];
+
+
+            const events = reports.map(r => ({
+                title: r.habitName + ': ' + r.text,
+                start: r.date,
+                allDay: true,
+                className: r.className,
+                backgroundColor: r.color,
+                borderColor: r.color,
+                textColor: '#fff'
+            }));
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: ''
+                },
+                events: events,
+                dayMaxEvents: true,
+            });
+
+            calendar.render();
+        });
+    </script>
+{% endblock %}

@@ -3,54 +3,8 @@
 {% block title %}Habit Tracker - Home{% endblock %}
 
 {% block stylesheets %}
-    {{ parent() }}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #00b09b, #96c93d);
-            min-height: 100vh;
-            margin: 0;
-            color: #333;
-        }
-
-        /* Navbar */
-        nav.navbar {
-            background-color: #008a78;
-            padding: 15px 30px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: white;
-        }
-        nav.navbar a {
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-            font-weight: 600;
-        }
-        nav.navbar a:hover {
-            text-decoration: underline;
-        }
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .user-profile img {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid white;
-        }
-        .user-name {
-            font-weight: 600;
-        }
 
         /* Container with white bg */
         .container {
@@ -65,8 +19,10 @@
         /* Hero */
         .hero {
             text-align: center;
-            margin-bottom: 60px;
-            color: #00b09b;
+            margin: 60px auto 40px;
+            color: white;
+            max-width: 700px;
+            padding: 0 15px;
         }
         .hero h1 {
             font-size: 3.2rem;
@@ -76,7 +32,7 @@
         .hero p {
             font-size: 1.2rem;
             margin-bottom: 40px;
-            color: #555;
+            color: #eee;
         }
         .btn-custom {
             padding: 12px 24px;
@@ -85,11 +41,14 @@
             font-size: 1rem;
             transition: all 0.3s ease;
             cursor: pointer;
+            border: 2px solid transparent;
+            text-decoration: none;
+            display: inline-block;
         }
         .btn-login {
             background-color: #00b09b;
             color: white;
-            border: 2px solid #00b09b;
+            border-color: #00b09b;
             margin-right: 15px;
         }
         .btn-login:hover {
@@ -99,7 +58,7 @@
         .btn-register {
             background-color: transparent;
             color: #00b09b;
-            border: 2px solid #00b09b;
+            border-color: #00b09b;
         }
         .btn-register:hover {
             background-color: #00b09b;
@@ -158,44 +117,31 @@
             color: white;
         }
     </style>
+    {{ parent() }}
 {% endblock %}
 
 {% block body %}
-    <nav class="navbar">
-        <div class="navbar-brand">Habit Tracker</div>
 
-        <div>
-            {% if app.user %}
-                <div class="user-profile">
-                    {# Assuming user has a 'profilePicture' and 'username' attributes #}
-                    <img src="{{ app.user.profilePicture ?? '/images/default-avatar.png' }}" alt="Profile picture" />
-                    <span class="user-name">{{ app.user.username }}</span>
-                    <a href="{{ path('app_logout') }}">Logout</a>
-                </div>
-            {% else %}
-                <a href="{{ path('app_login') }}">Login</a>
-                <a href="{{ path('app_register') }}">Register</a>
-            {% endif %}
-        </div>
-    </nav>
+
+    {# Hero outside container so it sits on gradient background #}
+    <section class="hero">
+        <h1>Master Your Habits</h1>
+        <p>Track your daily progress, build routines, and improve your life with our powerful habit tracker.</p>
+        {% if not app.user %}
+            <div>
+                <a href="{{ path('app_login') }}" class="btn-custom btn-login">Login</a>
+                <a href="{{ path('app_register') }}" class="btn-custom btn-register">Register</a>
+            </div>
+        {% endif %}
+    </section>
 
     <div class="container">
-        <section class="hero">
-            <h1>Master Your Habits</h1>
-            <p>Track your daily progress, build routines, and improve your life with our powerful habit tracker.</p>
-            {% if not app.user %}
-                <div>
-                    <a href="{{ path('app_login') }}" class="btn btn-custom btn-login">Login</a>
-                    <a href="{{ path('app_register') }}" class="btn btn-custom btn-register">Register</a>
-                </div>
-            {% endif %}
-        </section>
         <section class="features">
             <div class="feature-card">
                 <div class="feature-icon">📊</div>
                 <h5>Daily Tracking</h5>
                 <p>Log your habits and monitor progress every day with ease.</p>
-                <button class="btn btn-sm btn-primary mt-2">Go to Daily Tracking</button>
+                <a href="{{ path('app_daily') }}"><button class="btn btn-sm btn-primary mt-2">Go to Daily Tracking</button></a>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">🎯</div>
@@ -216,7 +162,6 @@
                 <button class="btn btn-sm btn-primary mt-2">View Progress</button>
             </div>
         </section>
-
 
         {# Example event list #}
         {% if app.user and events is defined and events|length > 0 %}

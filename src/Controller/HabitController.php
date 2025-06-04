@@ -7,51 +7,17 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
 #[Route('/habit')]
+#[isGranted('ROLE_USER')]
 final class HabitController extends AbstractController
 {
     #[Route('', name: 'dashboard')]
-    public function home(EntityManagerInterface $em): Response
+    public function home(): Response
     {
-        $habits = $em->getRepository(Habit::class)->findAll();
-
-        $events = [];
-        $habitList = [];
-
-        foreach ($habits as $habit) {
-            if ($habit) {
-                $startDate = $habit->getStartDate();
-
-                if ($startDate !== null) {
-                    $endDate = (clone $startDate)->modify('+' . ($habit->getPeriod() - 1) . ' days');
-
-                    $events[] = [
-                        'title' => $habit->getName(),
-                        'start' => $startDate->format('Y-m-d'),
-                        'end' => $endDate->modify('+1 day')->format('Y-m-d'),
-                        'description' => $habit->getDescription(),
-                        'color' => $habit->getColor() ?: '#000000', // fallback black
-                    ];
-
-                    // Use stored color for list (no random)
-                    $habitList[] = [
-                        'id' => $habit->getId(),
-                        'name' => $habit->getName(),
-                        'color' => $habit->getColor() ?: '#000000',
-                    ];
-                }
-            }
-        }
-
-        // Get logged-in user, can be null if not logged in
-        $user = $this->getUser();
-
-        return $this->render('habit/index.html.twig', [
-            'events' => $events,
-            'habitList' => $habitList,
-            'user' => $user,
-        ]);
+       return $this->render('habit/index.html.twig');
     }
 
     #[Route('/edit_habit/{id}', name: 'app_edit_habit')]
@@ -68,7 +34,7 @@ final class HabitController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();  // Save changes to DB
-            return $this->redirectToRoute('home');  // Redirect after success
+            return $this->redirectToRoute('dashboard');  // Redirect after success
         }
 
         return $this->render('habit/editHabit.html.twig', [
@@ -84,7 +50,7 @@ final class HabitController extends AbstractController
         }
         $em->remove($habit);
         $em->flush();
-        return $this->redirectToRoute('home');
+        return $this->redirectToRoute('dashboard');
     }
 
 
@@ -104,7 +70,7 @@ final class HabitController extends AbstractController
             $entityManager->persist($habit);
             $entityManager->flush();
 
-            return $this->redirectToRoute('home');
+            return $this->redirectToRoute('dashboard');
         }
 
         return $this->render('habit/addHabit.html.twig', [

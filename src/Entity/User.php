@@ -36,14 +36,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     /**
+     * @var Collection<int, DailyReport>
+     */
+    #[ORM\OneToMany(targetEntity: DailyReport::class, mappedBy: 'user')]
+    private Collection $dailyReports;
+
+    /**
      * @var Collection<int, Habit>
      */
-    #[ORM\OneToMany(targetEntity: Habit::class, mappedBy: 'user')]
-    private Collection $habits;
 
     public function __construct()
     {
-        $this->habits = new ArrayCollection();
+        $this->dailyReports = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -120,32 +124,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Habit>
+     * @return Collection<int, DailyReport>
      */
-    public function getHabits(): Collection
+    public function getDailyReports(): Collection
     {
-        return $this->habits;
+        return $this->dailyReports;
     }
 
-    public function addHabit(Habit $habit): static
+    public function addDailyReport(DailyReport $dailyReport): static
     {
-        if (!$this->habits->contains($habit)) {
-            $this->habits->add($habit);
-            $habit->setUser($this);
+        if (!$this->dailyReports->contains($dailyReport)) {
+            $this->dailyReports->add($dailyReport);
+            $dailyReport->setUser($this);
         }
 
         return $this;
     }
 
-    public function removeHabit(Habit $habit): static
+    public function removeDailyReport(DailyReport $dailyReport): static
     {
-        if ($this->habits->removeElement($habit)) {
+        if ($this->dailyReports->removeElement($dailyReport)) {
             // set the owning side to null (unless already changed)
-            if ($habit->getUser() === $this) {
-                $habit->setUser(null);
+            if ($dailyReport->getUser() === $this) {
+                $dailyReport->setUser(null);
             }
         }
 
         return $this;
     }
+
+
 }

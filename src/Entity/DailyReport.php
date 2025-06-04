@@ -3,9 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\DailyReportRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DailyReportRepository::class)]
@@ -16,27 +13,33 @@ class DailyReport
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+
+    #[ORM\Column]
     private ?\DateTime $date = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $state = null;
+    #[ORM\Column(length: 255)]
+    private ?string $status = null;
 
-    /**
-     * @var Collection<int, Habit>
-     */
-    #[ORM\ManyToMany(targetEntity: Habit::class, inversedBy: 'dailyReports')]
-    private Collection $habit;
+    #[ORM\Column(length: 255)]
+    private ?string $comment = null;
 
-    public function __construct()
-    {
-        $this->habit = new ArrayCollection();
-    }
+    #[ORM\ManyToOne(inversedBy: 'dailyReports')]
+    private ?USer $user = null;
+
+    #[ORM\ManyToOne(inversedBy: 'dailyReports')]
+    private ?Habit $Habit = null;
+
+    #[ORM\Column]
+    private ?int $rating = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
+
+
+
+
 
     public function getDate(): ?\DateTime
     {
@@ -50,38 +53,62 @@ class DailyReport
         return $this;
     }
 
-    public function getState(): ?string
+    public function getStatus(): ?string
     {
-        return $this->state;
+        return $this->status;
     }
 
-    public function setState(?string $state): static
+    public function setStatus(string $status): static
     {
-        $this->state = $state;
+        $this->status = $status;
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Habit>
-     */
-    public function getHabit(): Collection
+    public function getComment(): ?string
     {
-        return $this->habit;
+        return $this->comment;
     }
 
-    public function addHabit(Habit $habit): static
+    public function setComment(string $comment): static
     {
-        if (!$this->habit->contains($habit)) {
-            $this->habit->add($habit);
-        }
+        $this->comment = $comment;
 
         return $this;
     }
 
-    public function removeHabit(Habit $habit): static
+    public function getUser(): ?USer
     {
-        $this->habit->removeElement($habit);
+        return $this->user;
+    }
+
+    public function setUser(?USer $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function getHabit(): ?Habit
+    {
+        return $this->Habit;
+    }
+
+    public function setHabit(?Habit $Habit): static
+    {
+        $this->Habit = $Habit;
+
+        return $this;
+    }
+
+    public function getRating(): ?int
+    {
+        return $this->rating;
+    }
+
+    public function setRating(int $rating): static
+    {
+        $this->rating = $rating;
 
         return $this;
     }

@@ -11,9 +11,74 @@
 
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css' rel='stylesheet' />
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js' defer></script>
-    {% block stylesheets %}{% endblock %}
+    {% block stylesheets %}
+
+    {% endblock %}
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #00b09b, #96c93d);
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        /* Navbar */
+        nav.navbar {
+            background-color: #008a78;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+        }
+        nav.navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 600;
+        }
+        nav.navbar a:hover {
+            text-decoration: underline;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-profile img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+        .user-name {
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
+<nav class="navbar">
+    <div class="navbar-brand">Habit Tracker</div>
+
+    <div>
+        {% if app.user %}
+            <div class="user-profile">
+                {# Assuming user has a 'profilePicture' and 'username' attributes #}
+                <span class="user-name">{{ app.user.username }}</span>
+                <a href="{{ path('app_logout') }}">Logout</a>
+            </div>
+        {% else %}
+            <a href="{{ path('app_login') }}">Login</a>
+            <a href="{{ path('app_register') }}">Register</a>
+        {% endif %}
+    </div>
+</nav>
 {% block body %}{% endblock %}
 
 {# Bootstrap JS Bundle (includes Popper) #}
