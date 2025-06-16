@@ -6,6 +6,7 @@ use App\Entity\DailyReport;
 use App\Entity\Habit;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -27,7 +28,8 @@ class HabitForm extends AbstractType
                 'html5' => true,
                 // optional: set format if needed
                 //'format' => 'yyyy-MM-dd',
-            ]);
+            ])
+        ;
 
     }
 

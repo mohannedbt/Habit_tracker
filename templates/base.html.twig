@@ -67,6 +67,7 @@
     <div class="navbar-brand">Habit Tracker</div>
 
     <div>
+
         {% if app.user %}
             <div class="user-profile">
                 {# Assuming user has a 'profilePicture' and 'username' attributes #}
@@ -77,6 +78,7 @@
             <a href="{{ path('app_login') }}">Login</a>
             <a href="{{ path('app_register') }}">Register</a>
         {% endif %}
+        <a href="{{ path('app_daily') }}">Daily tracker</a>
     </div>
 </nav>
 {% block body %}{% endblock %}

@@ -63,9 +63,8 @@ final class HabitController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $colors = ['#FFCDD2', '#C8E6C9', '#BBDEFB', '#FFF9C4', '#D1C4E9', '#FFE0B2'];
-            $randomColor = $colors[array_rand($colors)];
-            $habit->setColor($randomColor);
+            $habit->setColor($request->request->get('color'));
+            $habit->setUser($this->getUser());
 
             $entityManager->persist($habit);
             $entityManager->flush();

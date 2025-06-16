@@ -1,32 +1,181 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .form-container {
+            background: linear-gradient(135deg, #00b09b, #96c93d);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .color-picker label {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            margin: 0 10px;
+            vertical-align: middle;
+            transition: border-color 0.3s;
+            position: relative;
+        }
+
+        /* Hide the label text, but keep the label element */
+        .color-picker label span {
+            position: absolute;  /* take it out of normal flow */
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* The colors for each label based on input value */
+        input[type="radio"][value="#00b09b"] + label {
+            background-color: #00b09b;
+        }
+        input[type="radio"][value="#96c93d"] + label {
+            background-color: #96c93d;
+        }
+        input[type="radio"][value="#007bff"] + label {
+            background-color: #007bff;
+        }
+        input[type="radio"][value="#ff7f50"] + label {
+            background-color: #ff7f50;
+        }
+        input[type="radio"][value="#6f42c1"] + label {
+            background-color: #6f42c1;
+        }
+
+        /* Highlight selected circle */
+        input[type="radio"]:checked + label {
+            border-color: #333;
+        }
+
+        /* Hide the radio buttons themselves */
+        input[type="radio"] {
+            display: none;
+        }
+
+
+        .form-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px 40px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .form-card h4 {
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #00b09b;
+            text-align: center;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .btn-submit {
+            background-color: #00b09b;
+            border: none;
+            font-weight: 600;
+        }
+
+        .btn-submit:hover {
+            background-color: #008a78;
+        }
+
+        .form-control {
+            border-radius: 8px;
+        }
+
+        .color-picker {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .color-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .color-circle.selected {
+            border: 3px solid #000;
+            transform: scale(1.1);
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
-    <div class="container my-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">Add New Habit</h4>
+    <div class="form-container">
+        <div class="form-card">
+            <h4><i class="bi bi-plus-circle-fill me-2"></i>Add New Habit</h4>
+
+            {{ form_start(form) }}
+
+            {% for field in form %}
+                {% if field.vars.name != 'color' %}
+                    <div class="mb-3">
+                        {{ form_label(field, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(field) }}
                     </div>
-                    <div class="card-body">
-                        {{ form_start(form) }}
+                {% endif %}
+            {% endfor %}
 
-                        {# Render all form fields except submit button (which we removed from the form) #}
-                        {% for field in form %}
-                            <div class="mb-3">
-                                {{ form_label(field, null, {'label_attr': {'class': 'form-label'}}) }}
-                                {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
-                                {{ form_errors(field) }}
-                            </div>
-                        {% endfor %}
-
-                        {# Manual submit button #}
-                        <button type="submit" class="btn btn-primary w-100">Save Habit</button>
-
-                        {{ form_end(form) }}
-                    </div>
+            {# Custom color picker #}
+            <div class="mb-4">
+                <label class="form-label">Pick a Color</label>
+                <div class="color-picker">
+                    {% set colors = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#C77DFF'] %}
+                    {% for color in colors %}
+                        <div class="color-circle"
+                             style="background-color: {{ color }}"
+                             data-color="{{ color }}"></div>
+                    {% endfor %}
                 </div>
+
             </div>
+
+            <button type="submit" class="btn btn-submit w-100 py-2">Save Habit</button>
+
+            {{ form_end(form) }}
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const colorCircles = document.querySelectorAll('.color-circle');
+            const colorInput = document.getElementById('color-input');
+
+            colorCircles.forEach(circle => {
+                circle.addEventListener('click', () => {
+                    colorCircles.forEach(c => c.classList.remove('selected'));
+                    circle.classList.add('selected');
+                    colorInput.value = circle.dataset.color;
+                });
+            });
+
+            // Optionally select the default color on page load
+            if (colorCircles.length) {
+                colorCircles[0].classList.add('selected');
+                colorInput.value = colorCircles[0].dataset.color;
+            }
+        });
+    </script>
 {% endblock %}
