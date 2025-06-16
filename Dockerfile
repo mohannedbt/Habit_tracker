@@ -19,6 +19,9 @@ COPY . .
 
 # Install PHP dependencies (creates vendor/ and var/)
 RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+# Create var/ manually if not present, then fix permissions
+RUN mkdir -p var && chown -R www-data:www-data var vendor
 # Fix permissions (only now vendor/ and var/ exist)
 RUN chown -R www-data:www-data var vendor
 
