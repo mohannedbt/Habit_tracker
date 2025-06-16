@@ -28,6 +28,8 @@ COPY . .
 # Install PHP dependencies (including symfony/runtime)
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
+# Install frontend assets
+RUN php bin/console importmap:install
 # Create necessary directories and fix permissions
 RUN mkdir -p var && chown -R www-data:www-data var vendor
 
