@@ -1,7 +1,6 @@
 # Use PHP 8.2 with Apache
 FROM php:8.2-apache
 
-
 # Install system packages and PHP extensions
 RUN apt-get update && apt-get install -y \
     unzip \
@@ -18,30 +17,28 @@ RUN a2enmod rewrite
 # Install Composer globally
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set environment variables
-ENV APP_ENV=prod
-ENV COMPOSER_ALLOW_SUPERUSER=1
-
-# Copy the project files
+# Set working directory
 WORKDIR /var/www/html
+
+# Copy all project files
 COPY . .
 
-# Set Apache DocumentRoot to Symfony's /public folder
+# Set Apache DocumentRoot to Symfony's public directory
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' /etc/apache2/sites-available/000-default.conf
 
+# Set environment variables for Symfony and Composer
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# Install dependencies without scripts (fixes symfony-cmd not found)
-RUN composer install --no-scripts --no-interaction --optimize-autoloader --no-dev
-RUN php bin/console importmap:install
-# Clear and warm up the cache
-RUN php bin/console cache:clear --env=prod \
-    && php bin/console cache:warmup --env=prod \ 
-    && php bin/console importmap:dump
-
-
-# Ensure necessary directories exist and set permissions
-RUN mkdir -p var vendor \
-    && chown -R www-data:www-data var vendor
+# Install dependencies and prepare Symfony for production
+RUN composer install --no-scripts --no-interaction --optimize-autoloader --no-dev \
+ && php bin/console importmap:install \
+ && php bin/console cache:clear --env=prod \
+ && php bin/console cache:warmup --env=prod \
+ && php bin/console importmap:dump \
+ && mkdir -p var vendor \
+ && chown -R www-data:www-data var vendor
 
 # Expose Apache port
 EXPOSE 80
