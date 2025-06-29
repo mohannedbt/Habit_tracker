@@ -32,7 +32,8 @@ RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' /et
 
 # Install dependencies without scripts (fixes symfony-cmd not found)
 RUN composer install --no-scripts --no-interaction --optimize-autoloader --no-dev
-RUN php bin/console importmap:install
+RUN php bin/console importmap:install \
+    && php bin/console importmap:dump
 
 # Clear and warm up the cache
 RUN php bin/console cache:clear --env=prod \
