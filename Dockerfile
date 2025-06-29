@@ -1,16 +1,15 @@
-# Use the official PHP image with Apache
+# Use PHP 8.2 with Apache
 FROM php:8.2-apache
 
-# Set working directory inside the container
+# Set working directory
 WORKDIR /var/www/html
 
-# Install system dependencies and PHP extensions
+# Install system packages and PHP extensions
 RUN apt-get update && apt-get install -y \
-    git \
     unzip \
+    git \
     libicu-dev \
     libonig-dev \
-    libxml2-dev \
     libzip-dev \
     zip \
     && docker-php-ext-install intl pdo pdo_mysql opcache zip
@@ -21,21 +20,26 @@ RUN a2enmod rewrite
 # Install Composer globally
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy project files into the container
+# Set environment variables
+ENV APP_ENV=prod
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+# Copy the project files
 COPY . .
 
-RUN composer install --no-interaction --optimize-autoloader --no-dev \
-    && php bin/console cache:clear \
+# Install dependencies without scripts (fixes symfony-cmd not found)
+RUN composer install --no-scripts --no-interaction --optimize-autoloader --no-dev
+
+# Clear and warm up the cache
+RUN php bin/console cache:clear --env=prod \
+    && php bin/console cache:warmup --env=prod
+
+# Ensure necessary directories exist and set permissions
+RUN mkdir -p var vendor \
     && chown -R www-data:www-data var vendor
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html/var /var/www/html/vendor
 
-# Set environment variable to production (or dev for local)
-ENV APP_ENV=prod
-
-# Expose port 80
+# Expose Apache port
 EXPOSE 80
-
 
 # Start Apache
 CMD ["apache2-foreground"]
