@@ -33,12 +33,18 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Install dependencies and prepare Symfony for production
 RUN composer install --no-scripts --no-interaction --optimize-autoloader --no-dev \
+ && echo "✅ Composer install done" \
  && php bin/console importmap:install \
+ && echo "✅ importmap:install done" \
  && php bin/console cache:clear --env=prod \
+ && echo "✅ cache:clear done" \
  && php bin/console cache:warmup --env=prod \
+ && echo "✅ cache:warmup done" \
  && php bin/console importmap:dump \
+ && echo "✅ importmap:dump done" \
  && mkdir -p var vendor \
  && chown -R www-data:www-data var vendor
+
 
 # Expose Apache port
 EXPOSE 80
