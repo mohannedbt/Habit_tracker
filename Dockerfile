@@ -1,8 +1,6 @@
 # Use PHP 8.2 with Apache
 FROM php:8.2-apache
 
-# Set working directory
-WORKDIR /var/www/html
 
 # Install system packages and PHP extensions
 RUN apt-get update && apt-get install -y \
@@ -25,7 +23,12 @@ ENV APP_ENV=prod
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Copy the project files
+WORKDIR /var/www/html
 COPY . .
+
+# Set Apache DocumentRoot to Symfony's /public folder
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' /etc/apache2/sites-available/000-default.conf
+
 
 # Install dependencies without scripts (fixes symfony-cmd not found)
 RUN composer install --no-scripts --no-interaction --optimize-autoloader --no-dev
