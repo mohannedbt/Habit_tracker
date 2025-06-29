@@ -24,6 +24,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy project files into the container
 COPY . .
 
+RUN composer install --no-interaction --optimize-autoloader --no-dev \
+    && php bin/console cache:clear \
+    && chown -R www-data:www-data var vendor
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html/var /var/www/html/vendor
 
@@ -33,9 +36,6 @@ ENV APP_ENV=prod
 # Expose port 80
 EXPOSE 80
 
-# Run Symfony cache warmup
-RUN composer install --no-interaction --optimize-autoloader --no-dev \
-    && php bin/console cache:clear
 
 # Start Apache
 CMD ["apache2-foreground"]
